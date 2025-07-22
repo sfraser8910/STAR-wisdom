@@ -31,6 +31,32 @@ x <- read_csv("https://raw.githubusercontent.com/PPBDS/bootcamp/refs/heads/maste
       select(g4math, kind, race, yearssmall)          
 ```
 
+```{r}
+library(tidyverse)
+suppressPackageStartupMessages(library(Hmisc))
+
+# Cleaned dataset: remove rows with missing g4math
+x_clean <- x %>% 
+  filter(!is.na(g4math))
+
+# Plot mean g4math by kind and race
+ggplot(x_clean, aes(x = kind, y = g4math, fill = race)) +
+  stat_summary(fun = mean, geom = "bar", 
+               position = position_dodge(width = 0.8), 
+               width = 0.7) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", 
+               position = position_dodge(width = 0.8), 
+               width = 0.2) +
+  labs(
+    title = "Mean G4 Math Scores by Class Type and Race",
+    x = "Class Type (Kind)",
+    y = "G4 Math Score",
+    fill = "Race"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
 ## Background Information
 
 The Tennessee STAR dataset comes from a large-scale, multi-year educational experiment conducted in the 1980s across dozens of Tennessee schools. In the study, over 6,000 kindergarten through third-grade students were randomly assigned to either small classes (13–17 students), regular-sized classes (22–25 students), or regular-sized classes with a teacher’s aide. The goal was to determine whether smaller class sizes improved academic performance, particularly in mathematics and reading. Academic outcomes were measured using standardized and curriculum-based tests, and the dataset also includes key student and classroom characteristics such as race, sex, school, and class assignment. 
@@ -54,13 +80,25 @@ x
 
 What sorts of questions are we trying to answer?
 
+What is the causal effect of being in a small class compared to a large class on student performance?
+
 In order to build the Preceptor Table, we need to answer some questions: Is the model causal or predictive? What are units? What are the outcomes? What are the covariates? What are the treatments?
 
+- it is a causal model
+- units are individual students
+- g2math=outcome
+- race=covariate
+- treatment=classtype
 
 ### Population Table 
 
 Describe in words the Population Table. For each of the four key assumption of Justice --- validity, stability, representativeness, and unconfoundedness --- provide a counter-example, if relevant. Describe the mathematical Structure of the model.
 
+- units: individual students
+- stability (columns don't change due to passage of time): data is from the 80s, but we're trying to learn about Texas now and school curricula and educational laws may have changed since them.  
+- validity (consistency between columns in the dataset and Preceptor Table): maybe g2math test grading guidelines have changed in the different states. 
+- representativeness (data and Preceptor Table are random samples from the same population): the data is from Tn but that doesn't represent the entirety of the US. 
+- unconfoundedness (treatment is independently assigned): honors classes were assigned to be smaller, so the students in these classes did better on the exam bceuase they were in an honors class, not because the class was smaller.
 
 ## More Information
 
